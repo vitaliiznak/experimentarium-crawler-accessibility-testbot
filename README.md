@@ -18,10 +18,13 @@ The crawler is built with Playwright for robust web navigation and uses axe-core
 - 🔍 Recursive web crawling with configurable depth
 - ⚡ Concurrent page analysis with rate limiting
 - 📊 Real-time progress tracking via WebSocket
-- 🎯 Configurable URL patterns (include/exclude)
 - 📝 Detailed WCAG violation reporting
-- 🔄 Memory-optimized for large sites
 - 📱 Responsive web interface
+
+
+## Screenshot
+
+![WCAG Test Bot Interface](./docs/assets/test_adliswil_portal.png)
 
 ## Tech Stack
 
@@ -33,19 +36,21 @@ The crawler is built with Playwright for robust web navigation and uses axe-core
 
 ## Project Structure
 
+```
 test-bot/
-├── api/ # Backend server
-│ ├── src/
-│ │ ├── services/ # Core services
-│ │ └── types/ # Type definitions
-│ └── package.json
-├── client/ # React frontend
-│ ├── src/
-│ │ ├── components/
-│ │ ├── services/
-│ │ └── types/
-│ └── package.json
-└── package.json # Root package.json
+├── api/                  # Backend server
+│   ├── src/
+│   │   ├── services/    # Core services
+│   │   └── types/       # Type definitions
+│   └── package.json
+├── client/              # React frontend
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   └── types/
+│   └── package.json
+└── package.json         # Root package.json
+```
 
 
 
