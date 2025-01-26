@@ -2,6 +2,17 @@
 
 A powerful web accessibility testing tool that crawls websites and performs automated WCAG 2.1 compliance checks using Playwright and axe-core.
 
+## About
+
+This project was created as a learning exercise to understand web accessibility testing and crawling techniques. It implements a web crawler integrated with [axe-core](https://github.com/dequelabs/axe-core).
+The main learning objectives were to:
+- Understand how web crawlers work
+- Learn about automated accessibility testing
+- Gain experience with axe-core integration
+- Practice building real-time progress tracking
+
+The crawler is built with Playwright for robust web navigation and uses axe-core's comprehensive ruleset to detect accessibility violations.
+
 ## Features
 
 - 🔍 Recursive web crawling with configurable depth

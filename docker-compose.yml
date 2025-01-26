@@ -12,6 +12,7 @@ services:
       - /app/client/node_modules
     environment:
       - NODE_ENV=development
+      - API_HOST=api
     depends_on:
       - api
 

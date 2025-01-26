@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 import { URL } from 'url';
 import type { CrawlResult, TestConfig } from '../types';
 import { EventEmitter } from 'events';
-import pLimit from 'p-limit';
+import Bottleneck from 'bottleneck';
 
 interface CrawlProgress {
   currentUrl: string;
@@ -25,13 +25,16 @@ export class CrawlerService extends EventEmitter {
   private config: TestConfig;
   private baseUrl: string = '';
   private isRunning: boolean = false;
-  private rateLimiter: ReturnType<typeof pLimit>;
+  private rateLimiter: Bottleneck;
 
   constructor(config: TestConfig) {
     super();
     this.config = config;
     // Limit concurrent requests to 3
-    this.rateLimiter = pLimit(3);
+    this.rateLimiter = new Bottleneck({
+      maxConcurrent: 5,
+      minTime: 1000 // minimum time between tasks in ms
+    });
   }
 
   private async initialize(): Promise<void> {
@@ -168,13 +171,7 @@ export class CrawlerService extends EventEmitter {
   }
 
   private async crawlWithRateLimit(url: string): Promise<CrawlResult> {
-    return this.rateLimiter(async () => {
-      // Add random delay between 1-3 seconds
-      await new Promise(resolve => 
-        setTimeout(resolve, 1000 + Math.random() * 2000)
-      );
-      return this.crawlPage(url);
-    });
+    return this.rateLimiter.schedule(() => this.crawlPage(url));
   }
 
   private async crawlPageWithRetry(url: string, retries = 2): Promise<CrawlResult> {
@@ -184,11 +181,19 @@ export class CrawlerService extends EventEmitter {
       try {
         return await this.crawlPage(url);
       } catch (error) {
-        lastError = error as CrawlError;
-        lastError.url = url;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorName = error instanceof Error ? error.name : 'Error';
+        const errorCode = error instanceof Error && 'code' in error ? 
+          (error as { code?: string }).code : undefined;
+
+        lastError = Object.assign(new Error(errorMessage), {
+          name: errorName,
+          url,
+          code: errorCode
+        }) as CrawlError;
 
         // Don't retry certain errors
-        if ('code' in error && (error.code === 'ERR_INVALID_URL' || error.code === 'ERR_BAD_SSL')) {
+        if (lastError?.code === 'ERR_INVALID_URL' || lastError?.code === 'ERR_BAD_SSL') {
           break;
         }
 
@@ -201,12 +206,11 @@ export class CrawlerService extends EventEmitter {
       }
     }
 
-    // Update the interface to include optional error property
     return {
       url,
       status: 0,
       linkedUrls: [],
-      errorMessage: lastError?.message // Changed error to errorMessage
+      errorMessage: lastError?.message
     };
   }
 

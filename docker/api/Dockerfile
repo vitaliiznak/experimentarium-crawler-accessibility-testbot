@@ -26,6 +26,10 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Playwright browsers
+RUN npx playwright install chromium
+RUN npx playwright install-deps chromium
+
 COPY package*.json ./
 COPY api/package*.json ./api/
 
